@@ -261,6 +261,9 @@ const Place = () => {
         Join Queue
       </Button>} 
       <ChatGPTAdvice text={text} />
+      <Typography>
+        See Dynamics during the day
+      </Typography>
       <LineChart/>
     </Paper>
   </Stack>

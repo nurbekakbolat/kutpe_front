@@ -3,7 +3,7 @@ import type { User } from './types';
 import { client } from '../../client';
 
 const initialState: User = {
-    is_superuser: false,
+    is_superuser: true,
     username: '',
     first_name: '',
     last_name: '',
