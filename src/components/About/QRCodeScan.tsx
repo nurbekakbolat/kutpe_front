@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { setActiveTab } from '../../models/slices/tabsSlice';
 import { Tabs } from '../../models/slices/types';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { QrReader }from 'react-qr-reader';
 import { fetchUserDetails } from '../../models/slices/userSlice';
@@ -13,15 +13,14 @@ import { Typography } from '@mui/material';
 const QRCodeScan = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { page } = useParams();
-    const [params] = useSearchParams();
-    const id = params.get('id') || '';
+    const id = getToken();
     const navigate = useNavigate();
     const user_id = getToken();
     const [qr, setQr] = useState('');
 
   const removeFromQueue = async () => {
     try {
-      await client.post(`/queue/${id}/remove/${user_id}/`);
+      await client.post(`/queue/${8944227500}/remove/${user_id}/`);
     } catch (error) {
       console.error(error);
     }
@@ -68,7 +67,7 @@ const QRCodeScan = () => {
       alignItems: 'center',
       height: '100vh'
     }}>
-    {id === '34' ? <QrReader
+    {id === '10' ? <QrReader
         containerStyle={{
           display: 'flex',
           justifyContent: 'center',

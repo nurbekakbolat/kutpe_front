@@ -41,11 +41,12 @@ const handleRegister = async () => {
 
 const handleLogin = async () => {
     try {
-        await client.post('auth/login/', {
+        const res = await client.post('auth/login/', {
             phone_number: number
         });
 
-        setEnterOtp(true);
+        navigate('/nearby')
+        localStorage.setItem('token', res.data);
     }
     catch (error) {
         console.log(error)
