@@ -11,12 +11,12 @@ const Auth = () => {
     const [otp, setOtp] = useState('');
 const handleOtp = async () => {
     try {
-        const token = await client.post('auth/login/', {
+        const res = await client.post('auth/login/', {
             phone_number: number,
             password: otp
         });
 
-        localStorage.setItem('token', token.data.key);
+        localStorage.setItem('token', res.data.user);
 
         navigate('/nearby')
     }
@@ -29,7 +29,7 @@ const handleRegister = async () => {
     try {
         await client.post('registration/', {
             phone_number: number
-        })
+        });
 
         setEnterOtp(true);
     }
@@ -55,13 +55,13 @@ const handleRegister = async () => {
                 value={number}
                 onChange={(e) => setNumber(e.target.value)}
                 sx={{
-                    borderBottom: "2px solid #fff",
+                    borderBottom: "2px solid #121212",
                     borderRadius: "0px",
                     height: "50px",
                     width: "100%",
                     backgroundColor: "transparent",
                     padding: "10px",
-                    color: "#fff",
+                    color: "#121212",
                     '&::placeholder': {
                         color: "lightgrey",
                         opacity: 1
@@ -89,13 +89,12 @@ const handleRegister = async () => {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             sx={{
-                borderRadius: "10px",
                 height: "50px",
                 width: "100%",
                 backgroundColor: "transparent",
                 padding: "10px",
-                borderBottom: "1px solid #fff",
-                color: "#fff",
+                borderBottom: "1px solid #121212",
+                color: "#121212",
                 '&::placeholder': {
                     color: "lightgrey",
                     opacity: 1
@@ -136,7 +135,7 @@ const handleRegister = async () => {
                 }}>Send</Typography>
             </Button>
         ) : (
-            <Button onClick={handleRegister} variant="outlined" sx={{
+            <Button onClick={handleRegister} variant="contained" sx={{
                 display: "flex",
                 alignSelf: "end",
                 fontSize: "14px",
@@ -148,7 +147,7 @@ const handleRegister = async () => {
                 },
             }}>
                 <Typography sx={{
-                    color: "#fff",
+                    color: "#121212",
                     fontWeight: "bold",
                     fontSize: "16px"
                 

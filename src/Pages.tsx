@@ -32,6 +32,8 @@ const PageHandler = () => {
       justifyContent: "flex-start",
       height: '100vh',
       alignItems: 'center',
+      overflowX: 'hidden',
+      overflowY: 'auto',
       flexGrow: 1,
       padding: '20px',
       backgroundColor: '#ededed',

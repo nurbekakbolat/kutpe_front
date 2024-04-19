@@ -2,26 +2,34 @@
 import { useEffect, useState } from 'react'
 import { setActiveTab } from '../../models/slices/tabsSlice';
 import { Tabs } from '../../models/slices/types';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { QrReader }from 'react-qr-reader';
 import { fetchUserDetails } from '../../models/slices/userSlice';
-import { AppDispatch, RootState } from '../../models/store';
-import { client } from '../../client';
+import { AppDispatch } from '../../models/store';
+import { client, getToken } from '../../client';
 import { Typography } from '@mui/material';
 
 const QRCodeScan = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { page } = useParams();
+    const [params] = useSearchParams();
+    const id = params.get('id') || '';
     const navigate = useNavigate();
-    const isAdmin = useSelector((state: RootState) => state.user.is_superuser);
-    const [scanResult, setScanResult] = useState('');
+    const user_id = getToken();
     const [qr, setQr] = useState('');
+
+  const removeFromQueue = async () => {
+    try {
+      await client.post(`/queue/${id}/remove/${user_id}/`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
     const handleScan = (data: any) => {
       if (data) {
-        console.log("RESULT: ", data)
-        setScanResult(data);
+        removeFromQueue();
       }
     };
 
@@ -60,7 +68,7 @@ const QRCodeScan = () => {
       alignItems: 'center',
       height: '100vh'
     }}>
-    {isAdmin ? <QrReader
+    {user_id === '8' ? <QrReader
         containerStyle={{
           display: 'flex',
           justifyContent: 'center',
@@ -72,15 +80,12 @@ const QRCodeScan = () => {
         scanDelay={500}
         onResult={handleScan}
       /> : <> 
-    <Typography variant="h4" gutterBottom>
+    <Typography style={{
+    }} variant="h4" gutterBottom>
       Show the QR Code to bank staff to check in
     </Typography>
         <img src={qr} alt="QR Code" />
       </>} 
-      
-      {scanResult && (
-        <p>User ID from QR: {scanResult}</p>
-      )}
     </div>
   )
 }

@@ -5,7 +5,7 @@ export const getToken = () => {
   };
 
 export const client = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://261a-87-255-216-84.ngrok-free.app/",
     timeout: 15000
   });
 

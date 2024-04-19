@@ -4,6 +4,7 @@ import { client, getToken } from '../../client'
 import { Button, Paper, Stack, Typography } from '@mui/material';
 import { Queue } from '../../models/types/place';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
 import ChatGPTAdvice from '../GPTAdvice';
 import { useDispatch as reduxUseDispatch } from 'react-redux';
 import CountdownTimer from './QueueState';
@@ -11,6 +12,14 @@ import dayjs from 'dayjs';
 import { AppDispatch } from '../../models/store';
 import { fetchUserDetails } from '../../models/slices/userSlice';
 import LineChart from './Graph';
+
+export interface Datapoint {
+  id: number
+  waiting_time: number
+  date: string
+  service_name: string
+  org_id: string
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const Banks: Record<string, string> = {
@@ -44,11 +53,29 @@ const Place = () => {
   const [queueState, setQueueState] = useState(false);
   const [bankInfo, setBankInfo] = useState<Queue | null>(null);
   const [text, setText] = useState('Please wait for a moment while we generate some advice for you.');
+  const [data, setData] = useState<Datapoint[]>([]);
 
   const callGPT = () => {
     try {
       client.post('/get-advice/').then((response) => {
         setText(response.data);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const getQueueData = async () => {
+    try {
+      await client.post(`/queue/${id}/`, {
+        service_name: "deposit"
+      }).then((response) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user = response.data.participants.find((user: any) => user.user.toString() === auth);
+        console.log(user)
+        if (user) {
+          setQueueState(true);
+        }
       });
     } catch (error) {
       console.error(error);
@@ -61,7 +88,7 @@ const Place = () => {
         service_name: "deposit",
         "date":"2024-04-19"
       }).then((response) => {
-        console.log(response.data);
+        setData(response.data);
       });
     } catch (error) {
       console.error(error);
@@ -102,7 +129,7 @@ const Place = () => {
 
   const handleJoinQueue = async () => {
     const token = getToken();
-
+    console.log(token)
     if (!token) navigate('/auth');
 
     try {
@@ -117,7 +144,9 @@ const Place = () => {
 
     setQueueState(true);
     try {
-      await client.post(`/add-to-queue/${id}/${auth}`);
+      await client.post(`/add-to-queue/${id}/${auth}`, {
+        service_name: "deposit"
+      });
 
 
     } catch (error) {
@@ -135,6 +164,11 @@ const Place = () => {
     setQueueState(false);
   };
 
+  useEffect(() => {
+    getQueueData();
+
+  }, [])
+
   return (
     <Stack
     direction="column"
@@ -147,16 +181,14 @@ const Place = () => {
       my: 24,
     }}
   >
-    <Paper elevation={3} sx={{
-      p: 3, // Increased padding for more space inside the Paper
+    <Paper elevation={0} sx={{
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: 3, // Increased gap for better visual separation
+      gap: 3,
       backgroundColor: '#ffffff',
-      borderRadius: '16px',
-      boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.2)',
+      borderRadius: '16px'
     }}>
       <div style={{
         display: 'flex',
@@ -165,7 +197,7 @@ const Place = () => {
         columnGap: '10px',
         flexDirection: 'row',
         width: '100%',
-
+        paddingTop: '20px'
       }}>
       <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
         {bankInfo?.org.name}
@@ -212,14 +244,13 @@ const Place = () => {
     {queueState ? <>
       <Button
         variant="contained"
-        color="primary"
-        endIcon={<AddCircleOutlineIcon />}
+        color="warning"
+        endIcon={<LogoutIcon />}
         onClick={handleQueueLeave}
         sx={{
           fontSize: '1rem',
           padding: '10px 20px',
           fontWeight: 'bold',
-          backgroundColor: '#4caf50',
           color: '#ffffff',
           alignSelf: 'flex-end',
           borderTopLeftRadius: 0,
@@ -264,7 +295,12 @@ const Place = () => {
       <Typography>
         See Dynamics during the day
       </Typography>
-      <LineChart/>
+      <div style={{
+        height: "600px"
+      }}>
+      <LineChart data={data}/>
+      </div>
+
     </Paper>
   </Stack>
   )

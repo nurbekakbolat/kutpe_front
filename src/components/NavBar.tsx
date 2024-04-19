@@ -6,7 +6,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch as reduxUseDispatch } from 'react-redux';
 import { setActiveTab } from '../models/slices/tabsSlice';
-import { fetchUserDetails } from '../models/slices/userSlice';
 import { getToken } from '../client';
 import { AppDispatch } from '../models/store';
 
@@ -30,16 +29,7 @@ const NavBar = () => {
 
   useEffect(() => {
     if (auth) {
-      dispatch(fetchUserDetails())
-      .then((res) => {
-        setAuth(res.payload.username);
-      })
-      .catch((err) => {
-        localStorage.removeItem('token');
-
-        setAuth(null)
-        console.error(err);
-      })
+      setAuth(auth);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
