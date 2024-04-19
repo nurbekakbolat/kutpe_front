@@ -1,0 +1,17 @@
+@import 'variables';
+
+.navbar {
+  color: #333;
+  box-shadow: none;
+
+  .nav-item {
+    text-decoration: none;
+    margin: 0 1rem;
+    font-weight: bold;
+    color: inherit;
+
+    &:hover {
+      color: $hover-color;
+    }
+  }
+}
