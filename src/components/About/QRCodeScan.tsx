@@ -15,12 +15,29 @@ const QRCodeScan = () => {
     const { page } = useParams();
     const id = getToken();
     const navigate = useNavigate();
-    const user_id = getToken();
     const [qr, setQr] = useState('');
+
+  const getQueueData = async () => {
+      try {
+        await client.post(`/queue/${id}/`, {
+          service_name: "deposit"
+        }).then((response) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const user = response.data.participants.find((user: any) => user.user.toString() === 5);
+
+          if (!user) {
+            navigate('/nearby');
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
   const removeFromQueue = async () => {
     try {
-      await client.post(`/queue/${8944227500}/remove/${user_id}/`);
+      await client.post(`/queue/${8944227500}/remove/${5}/`);
+
     } catch (error) {
       console.error(error);
     }
@@ -46,6 +63,10 @@ const QRCodeScan = () => {
         dispatch(setActiveTab(page as Tabs));
 
         getQR();
+
+        const intervalId = setInterval(() => {
+          getQueueData();
+      }, 3000);
         try {
           dispatch(fetchUserDetails());
         } catch (error) {
@@ -55,6 +76,8 @@ const QRCodeScan = () => {
     
           return;
         }    
+
+        return () => clearInterval(intervalId);
 
     }, [page, dispatch, navigate]);
 
