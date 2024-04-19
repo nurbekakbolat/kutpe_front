@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { client } from '../../client'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { client, getToken } from '../../client'
 import { Button, Paper, Stack, Typography } from '@mui/material';
 import { Queue } from '../../models/types/place';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ChatGPTAdvice from '../GPTAdvice';
+import { useDispatch as reduxUseDispatch } from 'react-redux';
 import CountdownTimer from './QueueState';
 import dayjs from 'dayjs';
+import { AppDispatch } from '../../models/store';
+import { fetchUserDetails } from '../../models/slices/userSlice';
+import LineChart from './Graph';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const Banks: Record<string, string> = {
@@ -31,6 +35,8 @@ function convertToHumanTime(decimalTime: number) {
 
 const Place = () => {
   const [params] = useSearchParams()
+  const navigate = useNavigate();
+  const dispatch = reduxUseDispatch<AppDispatch>();
   const auth = useMemo(() => localStorage.getItem('token'), []) || '';
   const id = params.get('id')
   const [waitingTime, setWaitingTime] = useState("Calculating...");
@@ -49,13 +55,28 @@ const Place = () => {
     }
   }
 
+  const getGraphData = async () => {
+    try {
+      await client.post(`/queue/${id}/waiting_time_date/`, {
+        service_name: "deposit",
+        "date":"2024-04-19"
+      }).then((response) => {
+        console.log(response.data);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
     callGPT();
-
+    getGraphData();
     const fetchBySearch = async () => {
       if (id) {
         try {
-          const response = await client.get(`/queue/${id}/`);
+          const response = await client.post(`/queue/${id}/`, {
+            service_name: "deposit"
+          });
 
           const time = response.data.waiting_time.toFixed(2);
           const { targetTime, timeText } = convertToHumanTime(time);
@@ -80,6 +101,20 @@ const Place = () => {
   }, [id]);
 
   const handleJoinQueue = async () => {
+    const token = getToken();
+
+    if (!token) navigate('/auth');
+
+    try {
+      await dispatch(fetchUserDetails());
+    } catch (error) {
+      console.error(error);
+
+      navigate('/auth');
+
+      return;
+    }    
+
     setQueueState(true);
     try {
       await client.post(`/add-to-queue/${id}/${auth}`);
@@ -88,6 +123,16 @@ const Place = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleQueueLeave = async () => {
+    try {
+      await client.post(`/leave-queue/${id}/${auth}`);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setQueueState(false);
   };
 
   return (
@@ -169,7 +214,7 @@ const Place = () => {
         variant="contained"
         color="primary"
         endIcon={<AddCircleOutlineIcon />}
-        onClick={handleJoinQueue}
+        onClick={handleQueueLeave}
         sx={{
           fontSize: '1rem',
           padding: '10px 20px',
@@ -189,32 +234,6 @@ const Place = () => {
         }}
       >
         Leave
-      </Button>
-
-      <Button
-        variant="contained"
-        color="primary"
-        endIcon={<AddCircleOutlineIcon />}
-        onClick={handleJoinQueue}
-        sx={{
-          fontSize: '1rem',
-          padding: '10px 20px',
-          fontWeight: 'bold',
-          backgroundColor: '#4caf50',
-          color: '#ffffff',
-          alignSelf: 'flex-end',
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: '16px',
-          borderBottomRightRadius: '16px',
-          borderBottomLeftRadius: 0,
-          '&:hover': {
-            backgroundColor: '#388e3c',
-          },
-          boxShadow: 'none',
-          marginRight: '0',
-        }}
-      >
-        Join Queue
       </Button>
     </> : <Button
         variant="contained"
@@ -240,8 +259,9 @@ const Place = () => {
         }}
       >
         Join Queue
-      </Button>}  
+      </Button>} 
       <ChatGPTAdvice text={text} />
+      <LineChart/>
     </Paper>
   </Stack>
   )

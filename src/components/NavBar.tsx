@@ -1,5 +1,5 @@
 import { AppBar, Toolbar, Typography, Container, Menu, MenuItem, IconButton } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { AccountCircle } from '@mui/icons-material';
 import LoginIcon from '@mui/icons-material/Login';
@@ -32,7 +32,7 @@ const NavBar = () => {
     if (auth) {
       dispatch(fetchUserDetails())
       .then((res) => {
-        console.log(res);
+        setAuth(res.payload.username);
       })
       .catch((err) => {
         localStorage.removeItem('token');

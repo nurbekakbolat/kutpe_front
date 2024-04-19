@@ -22,7 +22,7 @@ export const fetchUserDetails = createAsyncThunk(
             const data = await response.data.json();
             return data;
         } catch (error) {
-            return rejectWithValue(error);
+            return Promise.reject(error);
         }
     }
 );
