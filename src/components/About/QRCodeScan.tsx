@@ -68,7 +68,7 @@ const QRCodeScan = () => {
           height: '300px',
           width: '300px'
         }}
-        constraints={{ facingMode: 'user' }}
+        constraints={{ facingMode: 'environment' }}
         scanDelay={500}
         onResult={handleScan}
       /> : <> 
