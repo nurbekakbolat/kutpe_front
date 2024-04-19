@@ -13,7 +13,7 @@ const initialState: User = {
 
 export const fetchUserDetails = createAsyncThunk(
     'user/fetchDetails',
-    async (_, { rejectWithValue }) => {
+    async () => {
         try {
             const response = await client.get("auth/user/");
             if (response.status !== 200) {
