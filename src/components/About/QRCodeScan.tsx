@@ -27,9 +27,8 @@ const QRCodeScan = () => {
   }
 
     const handleScan = (data: any) => {
-      if (data) {
-        removeFromQueue();
-      }
+      console.log(data);
+      removeFromQueue();
     };
 
     const getQR = async () => {
