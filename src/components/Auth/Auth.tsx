@@ -17,6 +17,7 @@ const handleOtp = async () => {
         });
 
         localStorage.setItem('token', res.data.user);
+        localStorage.setItem('is_superuser', res.data.is_superuser);
 
         navigate('/nearby')
     }
@@ -36,6 +37,20 @@ const handleRegister = async () => {
     catch (error) {
         console.log(error)
     }
+}
+
+const handleLogin = async () => {
+    try {
+        await client.post('auth/login/', {
+            phone_number: number
+        });
+
+        setEnterOtp(true);
+    }
+    catch (error) {
+        console.log(error)
+    }
+
 }
 
   return (
@@ -135,7 +150,33 @@ const handleRegister = async () => {
                 }}>Send</Typography>
             </Button>
         ) : (
-            <Button onClick={handleRegister} variant="contained" sx={{
+           <div style={{
+                display: "flex",
+                alignSelf: "end",
+                flexDirection: "row",
+                gap: "10px"
+              
+           }}>
+           <Button onClick={handleLogin} variant="text" sx={{
+                display: "flex",
+                alignSelf: "end",
+                fontSize: "14px",
+                border: "none",
+                backgroundColor: "#a9a9a9a !important",
+                '&:hover': {
+                    border: "none",
+                    outline: "none"
+                },
+            }}>
+                <Typography sx={{
+                    color: "#121212",
+                    fontWeight: "bold",
+                    fontSize: "16px"
+                
+                }}>Login</Typography>
+            </Button> 
+           
+           <Button onClick={handleRegister} variant="contained" sx={{
                 display: "flex",
                 alignSelf: "end",
                 fontSize: "14px",
@@ -153,6 +194,7 @@ const handleRegister = async () => {
                 
                 }}>Register</Typography>
             </Button>  
+           </div> 
         )}
     </Box>
   )

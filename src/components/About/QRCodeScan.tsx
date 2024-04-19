@@ -15,6 +15,7 @@ const QRCodeScan = () => {
     const { page } = useParams();
     const [params] = useSearchParams();
     const id = params.get('id') || '';
+    const is_superuser = localStorage.getItem('is_superuser')?.toLocaleLowerCase() === 'true';
     const navigate = useNavigate();
     const user_id = getToken();
     const [qr, setQr] = useState('');
@@ -68,7 +69,7 @@ const QRCodeScan = () => {
       alignItems: 'center',
       height: '100vh'
     }}>
-    {user_id === '8' ? <QrReader
+    {id === '34' ? <QrReader
         containerStyle={{
           display: 'flex',
           justifyContent: 'center',
